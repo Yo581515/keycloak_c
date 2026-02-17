@@ -1,0 +1,5 @@
+The admin role grants full acces to perform Create, Read, Update and Delete (CRUD) operations on user and system configuration, enabling administrative management of the platform.
+
+http://localhost:8080/realms/fastapi-dev-mode-realm/protocol/openid-connect/auth?client_id=confidential-client&response_type=code&scope=openid&redirect_uri=http://localhost:8000
+
+http://localhost:8080/realms/fastapi-dev-mode-realm/account
