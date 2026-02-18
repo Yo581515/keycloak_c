@@ -1,12 +1,13 @@
 The admin role grants full acces to perform Create, Read, Update and Delete (CRUD) operations on user and system configuration, enabling administrative management of the platform.
 
 
-http://localhost:8080/realms/testing/account
 
 
 
 # uris
 "issuer": "http://localhost:8080/realms/testing",
+
+http://localhost:8080/realms/testing/account
 
 "authorization_endpoint": "http://localhost:8080/realms/testing/protocol/openid-connect/auth",
 
