@@ -1,5 +1,28 @@
 The admin role grants full acces to perform Create, Read, Update and Delete (CRUD) operations on user and system configuration, enabling administrative management of the platform.
 
-http://localhost:8080/realms/fastapi-dev-mode-realm/protocol/openid-connect/auth?client_id=confidential-client&response_type=code&scope=openid&redirect_uri=http://localhost:8000
 
-http://localhost:8080/realms/fastapi-dev-mode-realm/account
+http://localhost:8080/realms/testing/account
+
+
+
+# uris
+"issuer": "http://localhost:8080/realms/testing",
+
+"authorization_endpoint": "http://localhost:8080/realms/testing/protocol/openid-connect/auth",
+
+"token_endpoint": "http://localhost:8080/realms/testing/protocol/openid-connect/token",
+
+
+# needs Client authentication On
+"introspection_endpoint": "http://localhost:8080/realms/testing/protocol/openid-connect/token/introspect", 
+
+"userinfo_endpoint": "http://localhost:8080/realms/testing/protocol/openid-connect/userinfo",
+
+"end_session_endpoint": "http://localhost:8080/realms/testing/protocol/openid-connect/logout",
+  
+
+
+"jwks_uri": "http://localhost:8080/realms/testing/protocol/openid-connect/certs",
+
+
+"check_session_iframe": "http://localhost:8080/realms/testing/protocol/openid-connect/login-status-iframe.html",
