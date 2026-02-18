@@ -193,6 +193,11 @@ export default function App({ keycloak }) {
   const [itemDesc, setItemDesc] = useState("tasty");
   const [itemPrice, setItemPrice] = useState(3.5);
 
+    // developer item form state
+  const [devItemName, setDevItemName] = useState("dev-coffee");
+  const [devItemDesc, setDevItemDesc] = useState("dev tasty");
+  const [devItemPrice, setDevItemPrice] = useState(4.2);
+
   function syncTokensFromKeycloak() {
     setAccessToken(keycloak.token || "");
     setIdToken(keycloak.idToken || "");
@@ -203,7 +208,16 @@ export default function App({ keycloak }) {
     // If already authenticated via SSO, load profile + tokens
     if (keycloak.authenticated) {
       syncTokensFromKeycloak();
-      keycloak.loadUserProfile().then(setProfile).catch(() => setProfile(null));
+      keycloak
+        .loadUserProfile()
+        .then((p) => {
+          console.log("Keycloak profile:", p);
+          setProfile(p);
+        })
+        .catch((err) => {
+          console.error("loadUserProfile failed:", err);
+          setProfile(null);
+        });
     }
 
     // Keep token refreshed if logged in
@@ -251,11 +265,27 @@ export default function App({ keycloak }) {
   const deleteItem = (name) =>
     apiFetch(`/admin/items/${encodeURIComponent(name)}`, { method: "DELETE", token: keycloak.token });
 
+    // ---- Developer items (developer OR admin) ----
+  const listDevItems = () => apiFetch("/developer", { token: keycloak.token }); // returns all dev items
+  const createDevItem = (item) => apiFetch("/developer/items", { method: "POST", token: keycloak.token, body: item });
+  const getDevItem = (name) => apiFetch(`/developer/items/${encodeURIComponent(name)}`, { token: keycloak.token });
+  const updateDevItem = (name, item) =>
+    apiFetch(`/developer/items/${encodeURIComponent(name)}`, { method: "PUT", token: keycloak.token, body: item });
+  const deleteDevItem = (name) =>
+    apiFetch(`/developer/items/${encodeURIComponent(name)}`, { method: "DELETE", token: keycloak.token });
+
   const currentItemObj = {
     name: itemName,
     description: itemDesc,
     price: Number(itemPrice),
   };
+
+  const currentDevItemObj = {
+    name: devItemName,
+    description: devItemDesc,
+    price: Number(devItemPrice),
+  };
+
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: 20, maxWidth: 1100 }}>
@@ -267,8 +297,11 @@ export default function App({ keycloak }) {
       </div>
 
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-        <button onClick={() => keycloak.login()}>Login</button>
+
+        <button hidden={keycloak.authenticated} onClick={() => keycloak.login()}>Login</button>
+
         <button
+          hidden={!keycloak.authenticated}
           onClick={() =>
             keycloak.logout({ redirectUri: window.location.origin })
           }
@@ -342,8 +375,59 @@ export default function App({ keycloak }) {
           </button>
         </div>
       </div>
+            <h3>Developer items (role: developer OR admin)</h3>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 10 }}>
+        <div>
+          <div style={{ marginBottom: 6 }}>
+            <label>
+              dev name{" "}
+              <input value={devItemName} onChange={(e) => setDevItemName(e.target.value)} />
+            </label>
+          </div>
+          <div style={{ marginBottom: 6 }}>
+            <label>
+              dev description{" "}
+              <input value={devItemDesc} onChange={(e) => setDevItemDesc(e.target.value)} />
+            </label>
+          </div>
+          <div style={{ marginBottom: 6 }}>
+            <label>
+              dev price{" "}
+              <input
+                type="number"
+                value={devItemPrice}
+                onChange={(e) => setDevItemPrice(e.target.value)}
+                step="0.1"
+              />
+            </label>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignContent: "start" }}>
+          <button onClick={() => runCall(listDevItems)} disabled={!keycloak.authenticated}>
+            GET /developer (list dev items)
+          </button>
+          <button onClick={() => runCall(() => getDevItem(devItemName))} disabled={!keycloak.authenticated}>
+            GET /developer/items/{`{name}`}
+          </button>
+          <button onClick={() => runCall(() => createDevItem(currentDevItemObj))} disabled={!keycloak.authenticated}>
+            POST /developer/items
+          </button>
+          <button onClick={() => runCall(() => updateDevItem(devItemName, currentDevItemObj))} disabled={!keycloak.authenticated}>
+            PUT /developer/items/{`{name}`}
+          </button>
+          <button onClick={() => runCall(() => deleteDevItem(devItemName))} disabled={!keycloak.authenticated}>
+            DELETE /developer/items/{`{name}`}
+          </button>
+        </div>
+      </div>
 
       <hr />
+
+      <hr />
+      <h3>API output</h3>
+      {error && <pre style={{ color: "crimson" }}>{error}</pre>}
+      {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
 
       <h3>User info</h3>
       <pre>{JSON.stringify({ profile }, null, 2)}</pre>
@@ -377,9 +461,7 @@ export default function App({ keycloak }) {
 
       <hr />
 
-      <h3>API output</h3>
-      {error && <pre style={{ color: "crimson" }}>{error}</pre>}
-      {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
+      
     </div>
   );
 }
