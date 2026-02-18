@@ -300,7 +300,7 @@ export default function App({ keycloak }) {
 
         <button hidden={keycloak.authenticated} onClick={() => keycloak.login()}>Login</button>
 
-        <button
+        <button 
           hidden={!keycloak.authenticated}
           onClick={() =>
             keycloak.logout({ redirectUri: window.location.origin })

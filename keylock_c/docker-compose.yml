@@ -40,11 +40,27 @@ services:
 
       KC_HTTP_ENABLED: "true"
 
+    # volumes:
+    #   - ./keycloak-themes:/opt/keycloak/themes
     ports:
       - "8080:8080"
     depends_on:
       - postgres
     restart: unless-stopped
 
+
+  mailhog:
+    depends_on:
+      - keycloak
+    image: mailhog/mailhog
+    container_name: keycloak_mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    restart: unless-stopped
+
 volumes:
   keycloak_db_data:
+
+
+
